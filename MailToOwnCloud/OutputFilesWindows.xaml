@@ -1,0 +1,66 @@
+﻿<Window x:Class="MailToOwnCloud.OutputFilesWindows"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MailToOwnCloud"
+        mc:Ignorable="d"
+        Name="outputFilesWindows"
+        Title="Отправка файлов" 
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Height="400"
+        Width="600"
+        Loaded="outputFilesWindows_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <DataGrid Name="dg_files" 
+                  AutoGenerateColumns="False" 
+                  ItemsSource="{Binding}"
+                  IsReadOnly="True"
+                  Margin="5" >
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="True">
+                            <Setter Property="Background" Value="LightGreen"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Отправляю..">
+                            <Setter Property="Background" Value="LightYellow"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Foreground" Value="Black" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{x:Null}" />
+                            <Setter Property="BorderBrush" Value="{x:Null}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Имя файла" 
+                                    Width="*"
+                                    Binding="{Binding Path=Path}" />
+                <DataGridTextColumn Header="Тип" 
+                                    Binding="{Binding Path=TypePathToString}" />
+                <DataGridTextColumn Header="Статус" 
+                                    Width="80"
+                                    Binding="{Binding Path=Status}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Name="btn_upload" 
+                Content="Отправить по почте" 
+                Click="btn_upload_Click"
+                Grid.Row="1" 
+                Focusable="False" 
+                Margin="5,0,5,5"
+                FontSize="16" 
+                Background="LightGreen"/>
+    </Grid>
+</Window>
