@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:MailToOwnCloud"
         mc:Ignorable="d"
         Name="outputFilesWindows"
@@ -20,6 +21,7 @@
         <DataGrid Name="dg_files" 
                   AutoGenerateColumns="False" 
                   ItemsSource="{Binding}"
+                  Visibility="Hidden"
                   IsReadOnly="True"
                   Margin="5" >
             <DataGrid.Resources>
@@ -54,13 +56,17 @@
                                     Binding="{Binding Path=Status}" />
             </DataGrid.Columns>
         </DataGrid>
-        <Button Name="btn_upload" 
-                Content="Отправить по почте" 
+        <Button Name="btn_upload"  
                 Click="btn_upload_Click"
                 Grid.Row="1" 
+                IsEnabled="False"
                 Focusable="False" 
                 Margin="5,0,5,5"
-                FontSize="16" 
-                Background="LightGreen"/>
+                Background="LightGreen">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+                <TextBlock Name="txtbl_btn_upload" FontSize="20" Text="Поиск файлов" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Image Name="img_btn_upload" gif:ImageBehavior.AnimatedSource="Images\loader.gif" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>

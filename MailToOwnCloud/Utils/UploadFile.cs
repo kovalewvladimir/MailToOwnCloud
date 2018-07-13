@@ -1,22 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MailToOwnCloud
 {
+    /// <summary>
+    /// Тип пути
+    /// </summary>
     enum TypePath
     {
         File,
         Directory
     }
 
+    /// <summary>
+    /// Класс данных
+    /// </summary>
     class UploadFile : INotifyPropertyChanged
     {
+        #region Локальные переменные класса
+
         private string _path;
+        private TypePath _typePath;
+        private string _status;
+
+        #endregion
+
+        #region Свойства
+
+        /// <summary>
+        /// Путь до файла/папки
+        /// </summary>
         public string Path
         {
             get { return _path; }
@@ -27,7 +41,9 @@ namespace MailToOwnCloud
             }
         }
 
-        private TypePath _typePath;
+        /// <summary>
+        /// Тип файл/папка
+        /// </summary>
         public TypePath TypePath
         {
             get { return _typePath; }
@@ -37,6 +53,10 @@ namespace MailToOwnCloud
                 NotifyPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Тип файл/папка
+        /// </summary>
         public string TypePathToString
         {
             get
@@ -52,7 +72,9 @@ namespace MailToOwnCloud
             }
         }
 
-        private string _status;
+        /// <summary>
+        /// Статус
+        /// </summary>
         public string Status
         {
             get { return _status; }
@@ -63,6 +85,16 @@ namespace MailToOwnCloud
             }
         }
 
+        #endregion
+
+        #region Конструктор
+
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="path">Путь</param>
+        /// <param name="typePath">Тип</param>
+        /// <param name="status">Статус</param>
         public UploadFile(string path, TypePath typePath, string status)
         {
             this.Path     = path;
@@ -70,7 +102,16 @@ namespace MailToOwnCloud
             this.Status   = status;
         }
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="path">Путь</param>
+        /// <param name="typePath">Тип</param>
         public UploadFile(string path, TypePath typePath) : this(path, typePath, "Ожидает") { }
+
+        #endregion
+
+        #region Событие для динамического обновления view
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -81,5 +122,7 @@ namespace MailToOwnCloud
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        #endregion
     }
 }

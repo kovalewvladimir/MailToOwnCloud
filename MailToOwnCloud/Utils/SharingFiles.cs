@@ -7,26 +7,42 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using WebDAVClient;
 using WebDAVClient.Helpers;
 
 namespace MailToOwnCloud
 {
+    /// <summary>
+    /// Вспомогательный класс для работы с файлами и отправки их на сервер OwnCloud
+    /// </summary>
     class SharingFiles
     {
+
+        #region Локальные переменные класса
+
         private ObservableCollection<UploadFile> _uploadFiles;
-        //public ObservableCollection<UploadFile> UploadFiles { get => _uploadFiles; set => _uploadFiles = value; }
 
         private string _rootPathClient;
         private DataGrid _dataGrid;
 
+        #endregion
+
+        #region Конструктор
+
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        /// <param name="dataGrid">view для отображения файлов</param>
         public SharingFiles(DataGrid dataGrid)
         {
             _uploadFiles = new ObservableCollection<UploadFile>();
             _dataGrid    = dataGrid;
         }
+
+        #endregion
+
+        #region private методы
 
         private void SelectedItemDataGrid(UploadFile item)
         {
@@ -50,6 +66,8 @@ namespace MailToOwnCloud
 
         private async Task<bool> CreateDirectory(IClient c, string rootPathServer)
         {
+            // TODO: убрать isFolderCreated
+
             var isFolderCreated = true;
 
             var uploadDirectory = _uploadFiles.Where(item => item.TypePath == TypePath.Directory);
@@ -129,6 +147,17 @@ namespace MailToOwnCloud
             }
         }
 
+        #endregion
+
+        #region public методы
+
+        /// <summary>
+        /// Метод отправляет файлы на сервер (webdav)
+        /// </summary>
+        /// <param name="server">Сервер OwnCloud</param>
+        /// <param name="login">Логин</param>
+        /// <param name="password">Пароль</param>
+        /// <returns>Публичная ссылка</returns>
         public async Task<string> Upload(string server, string login, string password)
         {
             IClient c = new Client(new System.Net.NetworkCredential { UserName = login, Password = password }, TimeSpan.FromHours(1))
@@ -137,30 +166,24 @@ namespace MailToOwnCloud
                 BasePath = $"/remote.php/dav/files/{login}/"
             };
 
-            try
-            {
-                string rootPathServer = await this.CreateRootPathServer(c);
+            string rootPathServer = await this.CreateRootPathServer(c);
 
-            
-                var isCreateDirectory = await this.CreateDirectory(c, rootPathServer);
-                var isUploadFiles = await this.UploadFiles(c, rootPathServer);
+            bool isCreateDirectory = await this.CreateDirectory(c, rootPathServer);
+            bool isUploadFiles     = await this.UploadFiles(c, rootPathServer);
 
-                if (isCreateDirectory && isUploadFiles)
-                {
-                    return await this.GetPublicLink(server, login, password, rootPathServer);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception)
+            if (isCreateDirectory && isUploadFiles)
             {
-                return null;
+                return await this.GetPublicLink(server, login, password, rootPathServer);
             }
-           
+
+            return null;
         }
 
+        /// <summary>
+        /// Получить cписок файлов/папок
+        /// </summary>
+        /// <param name="pathNames">Массив с путями до файлов/папок</param>
+        /// <returns>Коллекция с файлами и папками</returns>
         public ObservableCollection<UploadFile> GetFiles(string[] pathNames)
         {
             if (_rootPathClient == null)
@@ -187,9 +210,16 @@ namespace MailToOwnCloud
             return _uploadFiles;
         }
 
+        /// <summary>
+        /// Получить cписок файлов/папок асинхронно 
+        /// </summary>
+        /// <param name="pathNames">Массив с путями до файлов/папок</param>
+        /// <returns>Коллекция с файлами и папками<</returns>
         public async Task<ObservableCollection<UploadFile>> GetFilesAsync(string[] pathNames)
         {
             return await Task.Factory.StartNew(()=> this.GetFiles(pathNames));
         }
+
+        #endregion
     }
 }

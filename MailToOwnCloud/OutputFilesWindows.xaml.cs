@@ -1,28 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using WebDAVClient;
+using System.Configuration;
 
 namespace MailToOwnCloud
 {
     /// <summary>
     /// Логика взаимодействия для OutputFilesWindows.xaml
+    /// Главное окно приложения
     /// </summary>
     public partial class OutputFilesWindows : Window
     {
+        #region Локальные переменные класса
+
         private SharingFiles _sharingFiles;
         private string[] _args;
 
@@ -30,56 +19,113 @@ namespace MailToOwnCloud
         private string _login;
         private string _password;
 
+        private string _thunderbirdExe;
+        private string _thunderbirdArgs;
+
+        #endregion
+
+        #region Конструктор
+
+        /// <summary>
+        /// Конструктор класса OutputFilesWindows
+        /// </summary>
+        /// <param name="args">Аргументы командной строки (путь до файла/папки)</param>
         public OutputFilesWindows(string[] args)
         {
+            // Инициализация компонентов
             InitializeComponent();
 
+            // Инициализация локальных переменных
+            // Аргументы командной строки (путь до файлов/папок)
             _args = args;
 
-            try
+            // Значения хранятся в файле
+            // app.config (до компиляции) -> MailToOwnCloud.exe.config (после компиляции)
+            _server = ConfigurationManager.AppSettings["server"];
+            _login = ConfigurationManager.AppSettings["login"];
+            _password = ConfigurationManager.AppSettings["password"];
+
+            _thunderbirdExe  = ConfigurationManager.AppSettings["thunderbird_exe"];
+            _thunderbirdArgs = ConfigurationManager.AppSettings["thunderbird_args"];
+
+            // Проверка проинициализированы ли локальные переменные
+            if (_server == null)
             {
-                _server   = Properties.Settings.Default.server;
-                _login    = Properties.Settings.Default.login;
-                _password = Properties.Settings.Default.password;
+                MessageBoxShow.Error("Не найден файл конфигурации");
+                App.Current.Shutdown(1);
             }
-            catch (System.Configuration.SettingsPropertyNotFoundException ex)
+
+            // Инициализация MessageBox`ов
+            MessageBoxShow.MessageErrorTitle = ConfigurationManager.AppSettings["message_error_title"];
+            MessageBoxShow.MessageErrorText  = ConfigurationManager.AppSettings["message_error"];
+
+            // Проверка есть ли файлы для отправки на сервер
+            if (_args.Length == 0)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }           
+                MessageBoxShow.Error("Нет файлов для отправки");
+                App.Current.Shutdown(1);
+            }
         }
 
+        #endregion
+
+        #region События
+
+        /// <summary>
+        /// Событие загрузки окна
+        /// </summary>
+        /// <param name="sender">Объект окна</param>
+        /// <param name="e">Информация о событии</param>
         private async void outputFilesWindows_Loaded(object sender, RoutedEventArgs e)
         {
             _sharingFiles = new SharingFiles(dg_files);
-            dg_files.DataContext = await _sharingFiles.GetFilesAsync(_args);
+            try
+            {
+                dg_files.DataContext = await _sharingFiles.GetFilesAsync(_args);
+                dg_files.Visibility = Visibility.Visible;
+
+                btn_upload.IsEnabled = true;
+                img_btn_upload.Visibility = Visibility.Collapsed;
+                txtbl_btn_upload.Text = "Отправить по почте";
+
+            }
+            catch (Exception ex)
+            {
+                MessageBoxShow.Error($"\n{ex.Message}");
+                App.Current.Shutdown(1);
+            }
         }
 
+        /// <summary>
+        /// Событие click по кнопке bnt_upload
+        /// </summary>
+        /// <param name="sender">Объект кнопки</param>
+        /// <param name="e">Информация о событии</param>
         private async void btn_upload_Click(object sender, RoutedEventArgs e)
         { 
             try
             {
                 btn_upload.IsEnabled = false;
-                btn_upload.Content = "Отправляю..";
+                txtbl_btn_upload.Text = "Отправляю...";
+                img_btn_upload.Visibility = Visibility.Visible;
 
                 string publicLink = await _sharingFiles.Upload(_server, _login, _password);
 
                 if (publicLink == null)
                 {
-                    MessageBox.Show("Error! Обратитесь к системному администратору", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    throw new Exception("Не получилось создать ссылку");
                 }
-                else
-                {
-                    //MessageBox.Show(publicLink);
-                    System.Diagnostics.Process.Start(@"C:\Program Files (x86)\Mozilla Thunderbird\thunderbird.exe", $"-compose body={publicLink}");
-                    btn_upload.IsEnabled = true;
-                }
-                
+
+                System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, publicLink));
+
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBoxShow.Error($"\n{ex.Message}");
             }
         }
+
+        #endregion
     }
 }
