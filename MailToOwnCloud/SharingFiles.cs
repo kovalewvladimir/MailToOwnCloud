@@ -131,7 +131,7 @@ namespace MailToOwnCloud
 
         public async Task<string> Upload(string server, string login, string password)
         {
-            IClient c = new Client(new System.Net.NetworkCredential { UserName = login, Password = password })
+            IClient c = new Client(new System.Net.NetworkCredential { UserName = login, Password = password }, TimeSpan.FromHours(1))
             {
                 Server = $"http://{server}/",
                 BasePath = $"/remote.php/dav/files/{login}/"
