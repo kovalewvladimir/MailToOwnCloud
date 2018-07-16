@@ -63,9 +63,19 @@
                 Focusable="False" 
                 Margin="5,0,5,5"
                 Background="LightGreen">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-                <TextBlock Name="txtbl_btn_upload" FontSize="20" Text="Поиск файлов" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <Image Name="img_btn_upload" gif:ImageBehavior.AnimatedSource="Images\loader.gif" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Orientation="Vertical">
+                <TextBlock Name="txtbl_btn_upload" 
+                           FontSize="20" 
+                           Text="Поиск файлов" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" />
+                <Image Name="img_btn_upload" 
+                       gif:ImageBehavior.AnimatedSource="Images\loader.gif" 
+                       Stretch="None"
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" />
             </StackPanel>
         </Button>
     </Grid>

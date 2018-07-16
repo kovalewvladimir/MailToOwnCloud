@@ -97,7 +97,7 @@ namespace MailToOwnCloud
         }
 
         /// <summary>
-        /// Событие click по кнопке bnt_upload
+        /// Событие click по кнопке btn_upload
         /// </summary>
         /// <param name="sender">Объект кнопки</param>
         /// <param name="e">Информация о событии</param>
@@ -117,15 +117,15 @@ namespace MailToOwnCloud
                 }
 
                 System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, publicLink));
-
-                this.Close();
             }
             catch (Exception ex)
             {
                 MessageBoxShow.Error($"\n{ex.Message}");
             }
-        }
 
+            this.Close();
+        }
+        
         #endregion
     }
 }
