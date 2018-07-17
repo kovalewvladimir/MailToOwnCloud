@@ -84,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Utils\EncryptionHelper.cs" />
     <Compile Include="Utils\MessageBoxShow.cs" />
     <Compile Include="OutputFilesWindows.xaml.cs">
       <DependentUpon>OutputFilesWindows.xaml</DependentUpon>

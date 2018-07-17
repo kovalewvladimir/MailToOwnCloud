@@ -43,7 +43,15 @@ namespace MailToOwnCloud
             // app.config (до компиляции) -> MailToOwnCloud.exe.config (после компиляции)
             _server = ConfigurationManager.AppSettings["server"];
             _login = ConfigurationManager.AppSettings["login"];
-            _password = ConfigurationManager.AppSettings["password"];
+            try
+            {
+                _password = EncryptionHelper.Decrypt(ConfigurationManager.AppSettings["password"]);
+            }
+            catch (System.Security.Cryptography.CryptographicException ex)
+            {
+                MessageBoxShow.Error(ex.Message, "", "Не могу расшифровать пароль в конфигурационном файле");
+                App.Current.Shutdown(1);
+            }
 
             _thunderbirdExe  = ConfigurationManager.AppSettings["thunderbird_exe"];
             _thunderbirdArgs = ConfigurationManager.AppSettings["thunderbird_args"];
