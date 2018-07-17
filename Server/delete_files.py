@@ -3,43 +3,10 @@ import argparse
 import logging
 import logging.config
 from datetime import datetime, timedelta
+import time
 
 
-def main():
-    # Аргументы командной строки
-    parser = argparse.ArgumentParser(description='Автоматическое удаление старых файлов')
-    parser.add_argument("-host", required=True, help="Имя сервера")
-    parser.add_argument("-user", required=True, help="Логин")
-    parser.add_argument("-pwd",  required=True, help="Пароль")
-    parser.add_argument("-days", default=180, type= int, help="Кол-во дней (default: %(default)s)")
-    parser.add_argument("-log", default="delete_files.log", help="Файл лога (default: %(default)s)")
-    args = parser.parse_args()
-
-    # Логирование
-    dictLogConfig = {
-        "version":1,
-        "handlers":{
-            "fileHandler":{
-                "class":"logging.FileHandler",
-                "formatter":"myFormatter",
-                "filename":args.log,
-            }
-        },
-        "loggers":{
-            "exampleApp":{
-                "handlers":["fileHandler"],
-                "level":"INFO",
-            }
-        },
-        "formatters":{
-            "myFormatter":{
-                "format":"%(asctime)s - %(levelname)s - %(message)s"
-            }
-        }
-    }
-    logging.config.dictConfig(dictLogConfig)
-    logger = logging.getLogger("exampleApp")
-
+def delete_files():
     # Конфиг для подключения по webdav`у
     options = {
         'host': args.host,
@@ -75,5 +42,56 @@ def main():
         logger.error(ex)
 
 
+def main():
+    # Запуск бесконечного цикла
+    while True:
+        delete_files()
+        time.sleep(args.time_reload)
+    
+
 if __name__ == "__main__":
-    main()
+
+    # Аргументы командной строки
+    parser = argparse.ArgumentParser(description='Автоматическое удаление старых файлов')
+    parser.add_argument("--host", required=True, help="Имя сервера")
+    parser.add_argument("--user", required=True, help="Логин")
+    parser.add_argument("--pwd",  required=True, help="Пароль")
+    parser.add_argument("--time-reload", default=86400, type= int, help="Перезапустить скрипт через (в секундах) (default: %(default)s)")
+    parser.add_argument("--days", default=180, type= int, help="Кол-во дней (default: %(default)s)")
+    parser.add_argument("--log", default="delete_files.log", help="Файл лога (default: ./%(default)s)")
+    args = parser.parse_args()
+
+    # Логирование
+    dictLogConfig = {
+        "version":1,
+        "handlers":{
+            "fileHandler":{
+                "class":"logging.FileHandler",
+                "formatter":"verbose",
+                "filename":args.log,
+            },
+            "consoleHandler":{
+            "class": "logging.StreamHandler",
+            "formatter": "verbose"
+            },
+        },
+        "loggers":{
+            "delete_files":{
+                "handlers":["fileHandler", "consoleHandler"],
+                "level":"INFO",
+            }
+        },
+        "formatters":{
+            "verbose":{
+                "format":"%(asctime)s - %(levelname)s - %(message)s"
+            }
+        }
+    }
+    logging.config.dictConfig(dictLogConfig)
+    logger = logging.getLogger("delete_files")
+
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.info('\n\n---Конец---')
+        exit()

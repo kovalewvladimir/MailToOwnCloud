@@ -10,10 +10,11 @@
             "request": "launch",
             "program": "${file}",
             "args": [
-                "-host=10.4.0.42",
-                "-user=admin",
-                "-pwd=admin",
-                "-days=180",
+                "--host=10.4.0.42",
+                "--user=admin",
+                "--pwd=admin",
+                "--days=180",
+                "--time-reload=1",
             ]
         },
     ]
