@@ -27,7 +27,7 @@
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Status}" Value="True">
+                        <DataTrigger Binding="{Binding Status}" Value="Ок">
                             <Setter Property="Background" Value="LightGreen"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Status}" Value="Отправляю..">

@@ -53,7 +53,7 @@ namespace MailToOwnCloud
         private async Task<string> CreateRootPathServer(IClient c)
         {
             var userName = Environment.UserName;
-            var rootPathServer = userName + "\\" + Guid.NewGuid().ToString() + "\\";
+            var rootPathServer = userName + "\\" + DateTime.Now.ToString("yyyy.MM.dd_HH-mm.ss") + "\\";
             try
             {
                 await c.CreateDir("/", userName);
@@ -82,7 +82,7 @@ namespace MailToOwnCloud
                 try
                 {
                     isFolderCreated = await c.CreateDir(rootPathServer, dir);
-                    directory.Status = isFolderCreated.ToString();
+                    directory.Status = "Ок";
                 }
                 catch (WebDAVException)
                 {
@@ -110,7 +110,7 @@ namespace MailToOwnCloud
                     var name = Path.GetFileName(file.Path);
 
                     isFileCreated = await c.Upload(remoteFilePath, fileStream, name);
-                    file.Status = isFileCreated.ToString();
+                    file.Status = "Ок";
                 }
             }
             return isFileCreated;
@@ -173,7 +173,7 @@ namespace MailToOwnCloud
 
             if (isCreateDirectory && isUploadFiles)
             {
-                return await this.GetPublicLink(server, login, password, rootPathServer);
+                return await this.GetPublicLink(server, login, password, rootPathServer) + "/download";
             }
 
             return null;
