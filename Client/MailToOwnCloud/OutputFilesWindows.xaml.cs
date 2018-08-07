@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Configuration;
+using System.IO;
+using System.Linq;
 
 namespace MailToOwnCloud
 {
@@ -21,6 +23,10 @@ namespace MailToOwnCloud
 
         private string _thunderbirdExe;
         private string _thunderbirdArgs;
+
+        private bool   _thunderbirdIsDays;
+        private int    _thunderbirdDays;
+        private string _thunderbirdDaysText;
 
         #endregion
 
@@ -56,10 +62,29 @@ namespace MailToOwnCloud
             _thunderbirdExe  = ConfigurationManager.AppSettings["thunderbird_exe"];
             _thunderbirdArgs = ConfigurationManager.AppSettings["thunderbird_args"];
 
-            // Проверка проинициализированы ли локальные переменные
-            if (_server == null)
+            try
             {
-                MessageBoxShow.Error("Не найден файл конфигурации");
+                _thunderbirdIsDays = bool.Parse(ConfigurationManager.AppSettings["thunderbird_is_days"]);
+                _thunderbirdDays = int.Parse(ConfigurationManager.AppSettings["thunderbird_days"]);
+                _thunderbirdDaysText = ConfigurationManager.AppSettings["thunderbird_days_text"];
+            }
+            catch (Exception ex)
+            {
+                MessageBoxShow.Error(ex.Message, "", "Ошибка в конфигурационном файле");
+                App.Current.Shutdown(1);
+            }
+
+            // Проверка проинициализированы ли локальные переменные
+            if (
+                _server              == null ||
+                _login               == null ||
+                _password            == null ||
+                _thunderbirdExe      == null ||
+                _thunderbirdArgs     == null ||
+                _thunderbirdDaysText == null 
+                )
+            {
+                MessageBoxShow.Error("Ошибка в конфигурационном файле");
                 App.Current.Shutdown(1);
             }
 
@@ -71,6 +96,12 @@ namespace MailToOwnCloud
             if (_args.Length == 0)
             {
                 MessageBoxShow.Error("Нет файлов для отправки");
+                App.Current.Shutdown(1);
+            }
+
+            if (! AuthenticationHelper.Authentication("access.csv"))
+            {
+                MessageBoxShow.Error("Нет прав. Обратитесь к системному администратору для получения соответствующих прав доступа.");
                 App.Current.Shutdown(1);
             }
         }
@@ -110,7 +141,7 @@ namespace MailToOwnCloud
         /// <param name="sender">Объект кнопки</param>
         /// <param name="e">Информация о событии</param>
         private async void btn_upload_Click(object sender, RoutedEventArgs e)
-        { 
+        {
             try
             {
                 btn_upload.IsEnabled = false;
@@ -124,7 +155,12 @@ namespace MailToOwnCloud
                     throw new Exception("Не получилось создать ссылку");
                 }
 
-                System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, publicLink));
+                string date = (DateTime.Now + TimeSpan.FromDays(_thunderbirdDays)).ToString("MM.dd.yyyy");
+                string body = (_thunderbirdIsDays) ?
+                                                     $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}" :
+                                                     publicLink;
+
+                System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, body));
             }
             catch (Exception ex)
             {
