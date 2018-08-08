@@ -155,7 +155,7 @@ namespace MailToOwnCloud
                     throw new Exception("Не получилось создать ссылку");
                 }
 
-                string date = (DateTime.Now + TimeSpan.FromDays(_thunderbirdDays)).ToString("MM.dd.yyyy");
+                string date = (DateTime.Now + TimeSpan.FromDays(_thunderbirdDays)).ToString("dd.MM.yyyy");
                 string body = (_thunderbirdIsDays) ?
                                                      $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}" :
                                                      publicLink;
