@@ -45,8 +45,8 @@ def delete_files():
 def main():
     # Запуск бесконечного цикла
     while True:
-        delete_files()
         time.sleep(args.time_reload)
+        delete_files()
     
 
 if __name__ == "__main__":
