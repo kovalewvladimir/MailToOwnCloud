@@ -1,6 +1,13 @@
 # vek 03/08/2018
 # Автоматическое развертывание MailToOwnCloud
-
+#
+# Используется python-simple-http-logger
+# https://github.com/kovalewvladimir/python-simple-http-logger
+#
+# Invoke-WebRequest                                          `
+# -Uri "http://<server>:9000/MailToOwnCloud/<name_log>.log" `
+# -Method Post -Body @{"t"= $logString}                  `
+# | Out-Null
 
 # Логирование
 $logDir  = $env:APPDATA + "\log_scripts_gpo\"
@@ -40,7 +47,7 @@ $(
                 $logString += "INFO: Копирование ярлыка пользователю $($env:USERNAME) на компьютере $($env:COMPUTERNAME)"
                 Copy-Item -Path $pathLink -Destination $pathSendTo
                 Invoke-WebRequest                                          `
-                    -Uri "http://10.1.13.16:9000/MailToOwnCloud/_COPY.log" `
+                    -Uri "http://<server>:9000/MailToOwnCloud/_COPY.log" `
                     -Method Post -Body @{"t"= $logString}                  `
                 | Out-Null
             }
@@ -50,7 +57,7 @@ $(
                 $logString += "INFO: Удаление ярлыка у пользователя $($env:USERNAME) на компьютере $($env:COMPUTERNAME)"
                 Remove-Item -Path $pathLinkSendTo
                 Invoke-WebRequest                                            `
-                    -Uri "http://10.1.13.16:9000/MailToOwnCloud/_DELETE.log" `
+                    -Uri "http://<server>:9000/MailToOwnCloud/_DELETE.log" `
                     -Method Post -Body @{"t"= $logString}                    `
                 | Out-Null
             } else {
@@ -62,7 +69,7 @@ $(
 
         # Отправка лога на сервер
         Invoke-WebRequest                                                         `
-            -Uri "http://10.1.13.16:9000/MailToOwnCloud/$($env:COMPUTERNAME).log" `
+            -Uri "http://<server>:9000/MailToOwnCloud/$($env:COMPUTERNAME).log" `
             -Method Post -Body @{"t"= $logString}                                 `
         | Out-Null
     }
