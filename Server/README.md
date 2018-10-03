@@ -1,10 +1,16 @@
+[![](https://images.microbadger.com/badges/image/kovalewvladimir/clear-old-files-owncloud.svg)](https://microbadger.com/images/kovalewvladimir/clear-old-files-owncloud "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/kovalewvladimir/clear-old-files-owncloud.svg)](https://microbadger.com/images/kovalewvladimir/clear-old-files-owncloud "Get your own version badge on microbadger.com")
+
 # Развертывание (deploy)
 
 - `mkdir -p /docker/owncloud`
 - `cd /docker/owncloud`
 - Скачать `Dockerfile`:
     ```
+    # Только для локальной сборки контейнера kovalewvladimir/clear-old-files-owncloud
     wget https://raw.githubusercontent.com/kovalewvladimir/MailToOwnCloud/master/Server/Dockerfile
+    
+    # Обязательно 
     wget https://raw.githubusercontent.com/kovalewvladimir/MailToOwnCloud/master/Server/docker-compose.yml
     wget https://raw.githubusercontent.com/kovalewvladimir/MailToOwnCloud/master/Server/ru.js
     wget https://raw.githubusercontent.com/kovalewvladimir/MailToOwnCloud/master/Server/ru.json
@@ -34,7 +40,7 @@
     DAYS=180
     ```
 
-- `docker build -t kovalewvladimir/clear-old-files-owncloud .`
+- !!! Только для локальной сборки контейнера kovalewvladimir/clear-old-files-owncloud `docker build -t kovalewvladimir/clear-old-files-owncloud .`
 
 - `docker-compose up -d`
 
