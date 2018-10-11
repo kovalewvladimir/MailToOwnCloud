@@ -33,6 +33,7 @@ services:
       - OWNCLOUD_REDIS_ENABLED=true
       - OWNCLOUD_REDIS_HOST=redis
       - OWNCLOUD_DEFAULT_LANGUAGE=ru
+      - OWNCLOUD_TRASHBIN_RETENTION_OBLIGATION=30
     healthcheck:
       test: ["CMD", "/usr/bin/healthcheck"]
       interval: 30s
