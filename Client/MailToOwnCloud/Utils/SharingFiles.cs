@@ -26,6 +26,8 @@ namespace MailToOwnCloud
         private string _rootPathClient;
         private DataGrid _dataGrid;
 
+        public ObservableCollection<UploadFile> GetUploadFiles { get => _uploadFiles; }
+
         #endregion
 
         #region Конструктор
