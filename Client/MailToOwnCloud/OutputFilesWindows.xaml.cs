@@ -27,6 +27,9 @@ namespace MailToOwnCloud
         private bool   _thunderbirdIsDays;
         private int    _thunderbirdDays;
         private string _thunderbirdDaysText;
+        private string _thunderbirdFilesText1;
+        private string _thunderbirdFilesText2;
+        private string _thunderbirdFilesText3;
 
         #endregion
 
@@ -67,6 +70,9 @@ namespace MailToOwnCloud
                 _thunderbirdIsDays = bool.Parse(ConfigurationManager.AppSettings["thunderbird_is_days"]);
                 _thunderbirdDays = int.Parse(ConfigurationManager.AppSettings["thunderbird_days"]);
                 _thunderbirdDaysText = ConfigurationManager.AppSettings["thunderbird_days_text"];
+                _thunderbirdFilesText1 = ConfigurationManager.AppSettings["thunderbird_files_text1"];
+                _thunderbirdFilesText2 = ConfigurationManager.AppSettings["thunderbird_files_text2"];
+                _thunderbirdFilesText3 = ConfigurationManager.AppSettings["thunderbird_files_text3"];
             }
             catch (Exception ex)
             {
@@ -81,7 +87,10 @@ namespace MailToOwnCloud
                 _password            == null ||
                 _thunderbirdExe      == null ||
                 _thunderbirdArgs     == null ||
-                _thunderbirdDaysText == null 
+                _thunderbirdDaysText == null ||
+                _thunderbirdFilesText1 == null ||
+                _thunderbirdFilesText2 == null ||
+                _thunderbirdFilesText3 == null
                 )
             {
                 MessageBoxShow.Error("Ошибка в конфигурационном файле");
@@ -156,9 +165,13 @@ namespace MailToOwnCloud
                 }
 
                 string date = (DateTime.Now + TimeSpan.FromDays(_thunderbirdDays)).ToString("dd.MM.yyyy");
-                string body = (_thunderbirdIsDays) ?
-                                                     $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}" :
-                                                     publicLink;
+
+                var listfiles = _sharingFiles.GetUploadFiles
+                     .Where(file => file.TypePath == TypePath.File)
+                     .Select(file => file.Path.Replace(_args[0] + "\\", ""))
+                     .Aggregate((cur, next) => cur + "<br> " + next); ;
+
+                string body = (_thunderbirdIsDays) ? $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}<br><br>{String.Format(_thunderbirdFilesText1, _thunderbirdFilesText2)}<br>{String.Format(_thunderbirdFilesText3, listfiles)}" : publicLink;
 
                 System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, body));
             }
