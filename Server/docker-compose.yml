@@ -44,7 +44,9 @@ services:
       - ./ru.js:/var/www/owncloud/lib/l10n/ru.js
       - ./ru.json:/var/www/owncloud/lib/l10n/ru.json
   clear-old-files-owncloud:
-    image: kovalewvladimir/clear-old-files-owncloud
+    build: 
+      context: ./clear-old-files
+      dockerfile: Dockerfile
     restart: always
     depends_on:
       - owncloud
