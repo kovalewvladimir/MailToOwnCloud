@@ -175,7 +175,7 @@ namespace MailToOwnCloud
 
             if (isCreateDirectory && isUploadFiles)
             {
-                return await this.GetPublicLink(server, login, password, rootPathServer) + "/download";
+                return await this.GetPublicLink(server, login, password, rootPathServer);
             }
 
             return null;
