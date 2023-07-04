@@ -24,12 +24,9 @@ namespace MailToOwnCloud
         private string _thunderbirdExe;
         private string _thunderbirdArgs;
 
-        private bool   _thunderbirdIsDays;
-        private int    _thunderbirdDays;
+        private bool _thunderbirdIsDays;
+        private int _thunderbirdDays;
         private string _thunderbirdDaysText;
-        private string _thunderbirdFilesText1;
-        private string _thunderbirdFilesText2;
-        private string _thunderbirdFilesText3;
 
         #endregion
 
@@ -62,17 +59,24 @@ namespace MailToOwnCloud
                 App.Current.Shutdown(1);
             }
 
-            _thunderbirdExe  = ConfigurationManager.AppSettings["thunderbird_exe"];
+            // Настройка клиента thunderbird
             _thunderbirdArgs = ConfigurationManager.AppSettings["thunderbird_args"];
+
+            string _thunderbirdX86Exe = ConfigurationManager.AppSettings["thunderbird_x86_exe"];
+            string _thunderbirdX64Exe = ConfigurationManager.AppSettings["thunderbird_x64_exe"];
+            bool _isThunderbirdX86Exe = File.Exists(_thunderbirdX86Exe);
+            bool _isThunderbirdX64Exe = File.Exists(_thunderbirdX64Exe);
+            if (_isThunderbirdX86Exe)
+                _thunderbirdExe = _thunderbirdX86Exe;
+            if (_isThunderbirdX64Exe)
+                _thunderbirdExe = _thunderbirdX64Exe;
+            if (_thunderbirdExe == null) MessageBoxShow.Error("Не найден Thunderbird");
 
             try
             {
                 _thunderbirdIsDays = bool.Parse(ConfigurationManager.AppSettings["thunderbird_is_days"]);
                 _thunderbirdDays = int.Parse(ConfigurationManager.AppSettings["thunderbird_days"]);
                 _thunderbirdDaysText = ConfigurationManager.AppSettings["thunderbird_days_text"];
-                _thunderbirdFilesText1 = ConfigurationManager.AppSettings["thunderbird_files_text1"];
-                _thunderbirdFilesText2 = ConfigurationManager.AppSettings["thunderbird_files_text2"];
-                _thunderbirdFilesText3 = ConfigurationManager.AppSettings["thunderbird_files_text3"];
             }
             catch (Exception ex)
             {
@@ -82,15 +86,12 @@ namespace MailToOwnCloud
 
             // Проверка проинициализированы ли локальные переменные
             if (
-                _server              == null ||
-                _login               == null ||
-                _password            == null ||
-                _thunderbirdExe      == null ||
-                _thunderbirdArgs     == null ||
-                _thunderbirdDaysText == null ||
-                _thunderbirdFilesText1 == null ||
-                _thunderbirdFilesText2 == null ||
-                _thunderbirdFilesText3 == null
+                _server == null ||
+                _login == null ||
+                _password == null ||
+                _thunderbirdExe == null ||
+                _thunderbirdArgs == null ||
+                _thunderbirdDaysText == null
                 )
             {
                 MessageBoxShow.Error("Ошибка в конфигурационном файле");
@@ -99,7 +100,7 @@ namespace MailToOwnCloud
 
             // Инициализация MessageBox`ов
             MessageBoxShow.MessageErrorTitle = ConfigurationManager.AppSettings["message_error_title"];
-            MessageBoxShow.MessageErrorText  = ConfigurationManager.AppSettings["message_error"];
+            MessageBoxShow.MessageErrorText = ConfigurationManager.AppSettings["message_error"];
 
             // Проверка есть ли файлы для отправки на сервер
             if (_args.Length == 0)
@@ -108,7 +109,7 @@ namespace MailToOwnCloud
                 App.Current.Shutdown(1);
             }
 
-            if (! AuthenticationHelper.Authentication("access.csv"))
+            if (!AuthenticationHelper.Authentication("access.csv"))
             {
                 MessageBoxShow.Error("Нет прав. Обратитесь к системному администратору для получения соответствующих прав доступа.");
                 App.Current.Shutdown(1);
@@ -165,13 +166,9 @@ namespace MailToOwnCloud
                 }
 
                 string date = (DateTime.Now + TimeSpan.FromDays(_thunderbirdDays)).ToString("dd.MM.yyyy");
-
-                var listfiles = _sharingFiles.GetUploadFiles
-                     .Where(file => file.TypePath == TypePath.File)
-                     .Select(file => file.Path.Replace(_args[0] + "\\", ""))
-                     .Aggregate((cur, next) => cur + "<br> " + next); ;
-
-                string body = (_thunderbirdIsDays) ? $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}<br><br>{String.Format(_thunderbirdFilesText1, _thunderbirdFilesText2)}<br>{String.Format(_thunderbirdFilesText3, listfiles)}" : publicLink;
+                string body = (_thunderbirdIsDays) ?
+                                                     $"{publicLink}<br>{String.Format(_thunderbirdDaysText, date)}" :
+                                                     publicLink;
 
                 System.Diagnostics.Process.Start(_thunderbirdExe, String.Format(_thunderbirdArgs, body));
             }
@@ -182,7 +179,7 @@ namespace MailToOwnCloud
 
             this.Close();
         }
-        
+
         #endregion
     }
 }
